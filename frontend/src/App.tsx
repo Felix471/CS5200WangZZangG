@@ -6,6 +6,8 @@ import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import AuthLayout from './components/AuthLayout';
 import AppointmentFormPage from "./pages/AppointmentFormPage.tsx";
+import PaymentFormPage from "./pages/PaymentFormPage.tsx";
+
 
 function App() {
     return (
@@ -21,6 +23,8 @@ function App() {
                     <Route path="/appointment" element={<AppointmentPage />} />
                     <Route path="/appointment/new" element={<AppointmentFormPage />} />
                     <Route path="/payment" element={<PaymentPage />} />
+                    <Route path="/payment/new" element={<PaymentFormPage />} />
+                    <Route path="/payment/edit/:id" element={<PaymentFormPage />} />
                 </Route>
 
                 {/* 404 page */}

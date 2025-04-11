@@ -1,10 +1,77 @@
-// @ts-ignore
-import React from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {deletePayment, getPayments} from '../api/paymentApi';
+import { Payment } from '../models/Payment';
 
-export default function PaymentPage() {
+function PaymentPage() {
+    const [payments, setPayments] = useState<Payment[]>([]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        getPayments()
+            .then(data => setPayments(data))
+            .catch(err => console.error('Error fetching payments:', err));
+    }, []);
+
+    const handleNewPayment = () => {
+        navigate('/payment/new');
+    };
+
+    const handleDelete = async (paymentId: number) => {
+        if (!window.confirm('Are you sure you want to delete this payment?')) {
+            return;
+        }
+
+        try {
+            await deletePayment(paymentId);
+            setPayments(payments.filter(p => p.id !== paymentId));
+        } catch (err) {
+            console.error('Failed to delete payment:', err);
+        }
+    };
+
     return (
         <div>
-            <h1>Payment Page (TODO)</h1>
+            <h2>My Payments</h2>
+            <button onClick={handleNewPayment}>Add New Payment</button>
+            {payments.length === 0 ? (
+                <p>No payment records.</p>
+            ) : (
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Appointment</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Method</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {payments.map(p => (
+                        <tr key={p.id}>
+                            <td>{p.id}</td>
+                            <td>{p.appointment_id}</td>
+                            <td>{p.amount}</td>
+                            <td>{p.status}</td>
+                            <td>{p.payment_method}</td>
+                            <td>
+                                <button onClick={() => navigate(`/payment/edit/${p.id}`)}>
+                                    Edit
+                                </button>
+                                <button onClick={() => handleDelete(p.id)}
+                                    style={{ marginLeft: '8px', backgroundColor: '#ff4d4f' }}>
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            )}
         </div>
     );
 }
+
+export default PaymentPage;

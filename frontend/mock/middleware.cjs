@@ -162,6 +162,28 @@ module.exports = (req, res, next) => {
             return;
         }
 
+        // Custom route for creating payment and updating appointment status
+        if (req.method === 'POST' && req.path === '/payments') {
+            const newPayment = req.body; // { appointment_id, amount, etc. }
+
+            const dbPath = path.resolve(__dirname, 'db.json');
+            const dbData = fs.readFileSync(dbPath, 'utf8');
+            const db = JSON.parse(dbData);
+
+            const apptIndex = db.appointments.findIndex(a => a.id === newPayment.appointment_id);
+            if (apptIndex >= 0) {
+                db.appointments[apptIndex].status = 'paid';
+            }
+
+            const nextId = db.payments.length ? Math.max(...db.payments.map(p => p.id)) + 1 : 1;
+            newPayment.id = nextId;
+            newPayment.created_at = new Date().toISOString();
+            db.payments.push(newPayment);
+
+            fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+
+            return res.status(201).json(newPayment);
+        }
         // Continue with normal json-server routing
         next();
     }, 500); // 500ms delay

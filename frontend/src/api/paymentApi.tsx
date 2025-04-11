@@ -1,51 +1,26 @@
 import axiosInstance from './axiosInstance';
-import { Appointment, AppointmentRequest } from '../models/Appointment';
+import { Payment } from '../models/Payment';
 
-/**
- * Get all appointments for the current user
- */
-export async function getUserAppointments(): Promise<Appointment[]> {
-    const response = await axiosInstance.get('/appointments');
+export async function getPayments(): Promise<Payment[]> {
+    const response = await axiosInstance.get('/payments');
     return response.data;
 }
 
-/**
- * Get a specific appointment by ID
- */
-export async function getAppointment(id: number): Promise<Appointment> {
-    const response = await axiosInstance.get(`/appointments/${id}`);
+export async function getPaymentById(id: number): Promise<Payment> {
+    const response = await axiosInstance.get(`/payments/${id}`);
     return response.data;
 }
 
-/**
- * Create a new appointment
- */
-export async function createAppointment(appointmentData: AppointmentRequest): Promise<Appointment> {
-    const response = await axiosInstance.post('/appointments', appointmentData);
+export async function createPayment(newPayment: Partial<Payment>): Promise<Payment> {
+    const response = await axiosInstance.post('/payments', newPayment);
     return response.data;
 }
 
-/**
- * Update an existing appointment
- */
-export async function updateAppointment(id: number, appointmentData: Partial<AppointmentRequest>): Promise<Appointment> {
-    const response = await axiosInstance.put(`/appointments/${id}`, appointmentData);
+export async function updatePayment(id: number, data: Partial<Payment>): Promise<Payment> {
+    const response = await axiosInstance.put(`/payments/${id}`, data);
     return response.data;
 }
 
-/**
- * Cancel an appointment
- */
-export async function cancelAppointment(id: number): Promise<void> {
-    await axiosInstance.delete(`/appointments/${id}`);
-}
-
-/**
- * Get available time slots for a specific date
- */
-export async function getAvailableTimeSlots(date: string): Promise<string[]> {
-    const response = await axiosInstance.get('/appointments/available-slots', {
-        params: { date }
-    });
-    return response.data;
+export async function deletePayment(id: number): Promise<void> {
+    await axiosInstance.delete(`/payments/${id}`);
 }
