@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import AuthLayout from './components/AuthLayout';
+import AppointmentFormPage from "./pages/AppointmentFormPage.tsx";
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
                 <Route element={<AuthLayout />}>
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/appointment" element={<AppointmentPage />} />
+                    <Route path="/appointment/new" element={<AppointmentFormPage />} />
                     <Route path="/payment" element={<PaymentPage />} />
                 </Route>
 

@@ -22,15 +22,6 @@ export interface AppointmentRequest {
     notes?: string;
 }
 
-export interface Doctor {
-    id: number;
-    name: string;
-    department: string;
-    specialization: string;
-    avatar?: string;
-    bio?: string;
-}
-
 export interface Treatment {
     id: number;
     name: string;
