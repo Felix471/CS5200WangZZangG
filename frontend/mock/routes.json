@@ -1,0 +1,9 @@
+{
+  "/api/auth/login": "/login",
+  "/api/auth/register": "/register",
+  "/api/auth/me": "/me",
+  "/api/appointments/available-slots": "/appointments/available-slots",
+  "/api/treatments": "/treatments",
+  "/api/doctors/department/:department": "/doctors?department=:department",
+  "/api/*": "/$1"
+}

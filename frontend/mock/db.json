@@ -1,0 +1,199 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "phone": "123-456-7890",
+      "address": "123 Main St, City",
+      "role": "patient",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "Dr. Smith",
+      "email": "smith@example.com",
+      "phone": "123-456-7891",
+      "address": "456 Dental Ave, City",
+      "role": "doctor",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "doctors": [
+    {
+      "id": 2,
+      "name": "Dr. Smith",
+      "department": "General Dentistry",
+      "specialization": "Cosmetic Dentistry",
+      "avatar": "https://randomuser.me/api/portraits/men/1.jpg",
+      "bio": "Dr. Smith is a general dentist with over 10 years of experience in cosmetic procedures."
+    },
+    {
+      "id": 3,
+      "name": "Dr. Johnson",
+      "department": "Orthodontics",
+      "specialization": "Braces & Aligners",
+      "avatar": "https://randomuser.me/api/portraits/women/1.jpg",
+      "bio": "Dr. Johnson specializes in orthodontic treatments for both children and adults."
+    },
+    {
+      "id": 4,
+      "name": "Dr. Williams",
+      "department": "Oral Surgery",
+      "specialization": "Dental Implants",
+      "avatar": "https://randomuser.me/api/portraits/men/2.jpg",
+      "bio": "Dr. Williams is an oral surgeon with expertise in dental implants and wisdom tooth extractions."
+    },
+    {
+      "id": 5,
+      "name": "Dr. Garcia",
+      "department": "Pediatric Dentistry",
+      "specialization": "Children's Dental Care",
+      "avatar": "https://randomuser.me/api/portraits/women/2.jpg",
+      "bio": "Dr. Garcia specializes in providing dental care for infants, children, and adolescents."
+    },
+    {
+      "id": 6,
+      "name": "Dr. Chen",
+      "department": "Periodontics",
+      "specialization": "Gum Disease Treatment",
+      "avatar": "https://randomuser.me/api/portraits/men/3.jpg",
+      "bio": "Dr. Chen is a periodontist focused on treatment of gum disease and dental implant procedures."
+    }
+  ],
+  "treatments": [
+    {
+      "id": 1,
+      "name": "Dental Cleaning",
+      "description": "Professional cleaning to remove plaque and tartar",
+      "duration": 60,
+      "price": 120,
+      "department": "General Dentistry"
+    },
+    {
+      "id": 2,
+      "name": "Dental Filling",
+      "description": "Filling a cavity to repair tooth decay",
+      "duration": 60,
+      "price": 150,
+      "department": "General Dentistry"
+    },
+    {
+      "id": 3,
+      "name": "Root Canal",
+      "description": "Treatment for infected pulp in the root of a tooth",
+      "duration": 90,
+      "price": 800,
+      "department": "Endodontics"
+    },
+    {
+      "id": 4,
+      "name": "Tooth Extraction",
+      "description": "Removal of a tooth",
+      "duration": 45,
+      "price": 200,
+      "department": "Oral Surgery"
+    },
+    {
+      "id": 5,
+      "name": "Dental Crown",
+      "description": "Cap placed over a damaged tooth",
+      "duration": 60,
+      "price": 1200,
+      "department": "General Dentistry"
+    },
+    {
+      "id": 6,
+      "name": "Teeth Whitening",
+      "description": "Professional whitening treatment",
+      "duration": 90,
+      "price": 350,
+      "department": "Cosmetic Dentistry"
+    },
+    {
+      "id": 7,
+      "name": "Dental Implant",
+      "description": "Artificial tooth root for replacement tooth",
+      "duration": 120,
+      "price": 3000,
+      "department": "Oral Surgery"
+    },
+    {
+      "id": 8,
+      "name": "Braces Consultation",
+      "description": "Initial consultation for orthodontic treatment",
+      "duration": 60,
+      "price": 100,
+      "department": "Orthodontics"
+    },
+    {
+      "id": 9,
+      "name": "Invisalign Fitting",
+      "description": "Custom fitting for clear aligners",
+      "duration": 60,
+      "price": 200,
+      "department": "Orthodontics"
+    },
+    {
+      "id": 10,
+      "name": "Pediatric Dental Exam",
+      "description": "Comprehensive dental examination for children",
+      "duration": 45,
+      "price": 100,
+      "department": "Pediatric Dentistry"
+    }
+  ],
+  "appointments": [
+    {
+      "id": 1,
+      "patient_id": 1,
+      "doctor_id": 2,
+      "treatment_id": 1,
+      "date": "2025-04-15",
+      "time": "10:00",
+      "status": "confirmed",
+      "notes": "Regular dental checkup and cleaning",
+      "doctor_name": "Dr. Smith",
+      "department": "General Dentistry",
+      "treatment_name": "Dental Cleaning",
+      "created_at": "2025-04-01T00:00:00.000Z",
+      "updated_at": "2025-04-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "patient_id": 1,
+      "doctor_id": 3,
+      "treatment_id": 8,
+      "date": "2025-04-20",
+      "time": "14:30",
+      "status": "pending",
+      "notes": "Initial consultation for braces",
+      "doctor_name": "Dr. Johnson",
+      "department": "Orthodontics",
+      "treatment_name": "Braces Consultation",
+      "created_at": "2025-04-05T00:00:00.000Z",
+      "updated_at": "2025-04-05T00:00:00.000Z"
+    }
+  ],
+  "payments": [
+    {
+      "id": 1,
+      "patient_id": 1,
+      "appointment_id": 1,
+      "amount": 120.00,
+      "status": "completed",
+      "payment_method": "credit_card",
+      "transaction_id": "txn_123456",
+      "created_at": "2025-04-01T00:00:00.000Z",
+      "updated_at": "2025-04-01T00:00:00.000Z"
+    }
+  ],
+  "available-slots": {
+    "2025-04-15": ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+    "2025-04-16": ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+    "2025-04-17": ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+    "2025-04-18": ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"]
+  }
+}
