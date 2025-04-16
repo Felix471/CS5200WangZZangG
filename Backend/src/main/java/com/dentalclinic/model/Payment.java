@@ -1,55 +1,39 @@
 package com.dentalclinic.model;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "Payment")
 public class Payment {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long paymentId;
-
+  private Integer paymentId;
   private BigDecimal amount;
-
-  @Column(columnDefinition = "DATE DEFAULT CURRENT_DATE")
   private LocalDate paymentDate;
-
   private String method;
+  private Integer patientId;
+  private Integer appointmentId;
 
-  @ManyToOne
-  @JoinColumn(name = "patient_id")
-  private Patient patient;
-
-  @ManyToOne
-  @JoinColumn(name = "appointment_id")
-  private Appointment appointment;
-
-  // Constructors
   public Payment() {}
 
-  public Payment(BigDecimal amount, String method) {
+  public Payment(Integer paymentId, BigDecimal amount, LocalDate paymentDate,
+      String method, Integer patientId, Integer appointmentId) {
+    this.paymentId = paymentId;
     this.amount = amount;
+    this.paymentDate = paymentDate;
     this.method = method;
+    this.patientId = patientId;
+    this.appointmentId = appointmentId;
   }
 
   // Getters and Setters
-  public Long getPaymentId() { return paymentId; }
-  public void setPaymentId(Long paymentId) { this.paymentId = paymentId; }
-
+  public Integer getPaymentId() { return paymentId; }
+  public void setPaymentId(Integer paymentId) { this.paymentId = paymentId; }
   public BigDecimal getAmount() { return amount; }
   public void setAmount(BigDecimal amount) { this.amount = amount; }
-
   public LocalDate getPaymentDate() { return paymentDate; }
   public void setPaymentDate(LocalDate paymentDate) { this.paymentDate = paymentDate; }
-
   public String getMethod() { return method; }
   public void setMethod(String method) { this.method = method; }
-
-  public Patient getPatient() { return patient; }
-  public void setPatient(Patient patient) { this.patient = patient; }
-
-  public Appointment getAppointment() { return appointment; }
-  public void setAppointment(Appointment appointment) { this.appointment = appointment; }
+  public Integer getPatientId() { return patientId; }
+  public void setPatientId(Integer patientId) { this.patientId = patientId; }
+  public Integer getAppointmentId() { return appointmentId; }
+  public void setAppointmentId(Integer appointmentId) { this.appointmentId = appointmentId; }
 }
