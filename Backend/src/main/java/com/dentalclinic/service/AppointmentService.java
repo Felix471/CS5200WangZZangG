@@ -38,6 +38,18 @@ public class AppointmentService {
     }
   }
 
+  // Add the missing method to get appointment by ID
+  public Appointment getAppointmentById(int appointmentId) {
+    try {
+      return appointmentRepository.getAppointmentById(appointmentId);
+    } catch (SQLException e) {
+      handleAppointmentError(e, appointmentId);
+      // This line will never be reached if handleAppointmentError throws an exception,
+      // which it always will, but we need to return something to satisfy the compiler
+      throw new NotFoundException("Appointment not found with ID: " + appointmentId);
+    }
+  }
+
   @Transactional
   public void updateAppointment(Appointment appointment) {
     try {

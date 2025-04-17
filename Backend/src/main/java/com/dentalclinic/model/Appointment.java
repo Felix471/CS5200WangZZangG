@@ -1,10 +1,17 @@
 package com.dentalclinic.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.time.LocalDateTime;
 
 public class Appointment {
   public enum AppointmentStatus {
     SCHEDULED, COMPLETED, CANCELED;
+
+    @JsonCreator
+    public static AppointmentStatus fromString(String value) {
+      return AppointmentStatus.valueOf(value.toUpperCase());
+    }
 
     // Convert between enum and database string representation
     public String toDatabaseValue() {

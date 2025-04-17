@@ -1,26 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createTreatment, getTreatmentById, updateTreatment } from '../api/treatmentApi';
+import { createTreatment, updateTreatment, getAllTreatments } from '../api/treatmentApi';
 import { Treatment } from '../models/Treatment';
 
 function TreatmentFormPage() {
     const { id } = useParams();
     const navigate = useNavigate();
 
+    const treatmentId = id ? parseInt(id, 10) : 0;
+    const isEditMode = treatmentId > 0;
+
     const [treatmentData, setTreatmentData] = useState<Partial<Treatment>>({
+        treatmentId: 0,
         description: '',
         dentistId: 0,
         appointmentId: 0,
     });
 
     useEffect(() => {
-        if (id) {
-
-            getTreatmentById(Number(id))
-                .then(data => setTreatmentData(data))
-                .catch(err => console.error('Failed to fetch treatment by id:', err));
+        if (isEditMode) {
+            loadTreatmentToEdit(treatmentId);
         }
-    }, [id]);
+    }, [treatmentId, isEditMode]);
+
+    const loadTreatmentToEdit = async (id: number) => {
+        try {
+            const allTreatments = await getAllTreatments();
+            const found = allTreatments.find((t) => t.treatmentId === id);
+            if (found) {
+                setTreatmentData(found);
+            } else {
+                console.error(`Treatment with ID ${id} not found`);
+            }
+        } catch (error) {
+            console.error('Failed to load treatment:', error);
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -35,8 +50,8 @@ function TreatmentFormPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            if (id) {
-                await updateTreatment(Number(id), treatmentData);
+            if (isEditMode) {
+                await updateTreatment(treatmentId, treatmentData);
                 alert('Treatment updated successfully!');
             } else {
                 await createTreatment(treatmentData);
@@ -51,7 +66,7 @@ function TreatmentFormPage() {
 
     return (
         <div>
-            <h2>{id ? 'Edit Treatment' : 'Create Treatment'}</h2>
+            <h2>{isEditMode ? 'Edit Treatment' : 'Create Treatment'}</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Description:</label>

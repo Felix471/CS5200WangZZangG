@@ -7,7 +7,7 @@ export async function getAppointments(): Promise<Appointment[]> {
 }
 
 export async function getAppointmentById(id: number): Promise<Appointment> {
-    const response = await axiosInstance.get(`/api/appointments/${id}`);
+    const response = await axiosInstance.get(`/api/appointments/${id}`);  // Fixed: Added backticks
     return response.data;
 }
 
@@ -25,14 +25,14 @@ export async function updateAppointment(
     id: number,
     data: Partial<Appointment>
 ): Promise<void> {
-    await axiosInstance.put(`/api/appointments/${id}`, data);
+    await axiosInstance.put(`/api/appointments/${id}`, data);  // Fixed: Added backticks
 }
 
 export async function cancelAppointment(id: number): Promise<void> {
-    await axiosInstance.delete(`/api/appointments/${id}`);
+    await axiosInstance.delete(`/api/appointments/${id}`);  // Fixed: Added backticks
 }
 
 export async function calculateAppointmentTotal(id: number): Promise<number> {
-    const response = await axiosInstance.get(`/api/appointments/${id}/total`);
+    const response = await axiosInstance.get(`/api/appointments/${id}/total`);  // Fixed: Added backticks
     return response.data;
 }

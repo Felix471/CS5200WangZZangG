@@ -19,21 +19,21 @@ public class AppointmentRepository {
   }
 
   public Appointment createAppointment(Appointment appointment) throws SQLException {
-    String sql = "{CALL Appointment_Create_Simple(?, ?, ?)}";
+    String sql = "{CALL Appointment_Create_Simple(?, ?, ?, ?)}";
     try (Connection conn = dataSource.getConnection();
-        CallableStatement stmt = conn.prepareCall(sql)) {
+         CallableStatement stmt = conn.prepareCall(sql)) {
 
       stmt.setTimestamp(1, Timestamp.valueOf(appointment.getAppointmentDate()));
       stmt.setInt(2, appointment.getPatientId());
       stmt.setInt(3, appointment.getDentistId());
-      stmt.executeUpdate();
 
-      // Retrieve generated ID
-      try (ResultSet rs = stmt.getGeneratedKeys()) {
-        if (rs.next()) {
-          appointment.setAppointmentId(rs.getInt(1));
-        }
-      }
+      stmt.registerOutParameter(4, Types.INTEGER);
+
+      stmt.execute();
+
+      int generatedId = stmt.getInt(4);
+      appointment.setAppointmentId(generatedId);
+
       return appointment;
     }
   }
@@ -41,8 +41,8 @@ public class AppointmentRepository {
   public List<Appointment> getAllAppointments() throws SQLException {
     String sql = "{CALL Appointment_Read()}";
     try (Connection conn = dataSource.getConnection();
-        CallableStatement stmt = conn.prepareCall(sql);
-        ResultSet rs = stmt.executeQuery()) {
+         CallableStatement stmt = conn.prepareCall(sql);
+         ResultSet rs = stmt.executeQuery()) {
 
       List<Appointment> appointments = new ArrayList<>();
       while (rs.next()) {
@@ -58,34 +58,66 @@ public class AppointmentRepository {
     }
   }
 
+  public Appointment getAppointmentById(int appointmentId) throws SQLException {
+    String sql = "{CALL Appointment_ReadById(?)}";
+    try (Connection conn = dataSource.getConnection();
+         CallableStatement stmt = conn.prepareCall(sql)) {
+
+      stmt.setInt(1, appointmentId);
+      try (ResultSet rs = stmt.executeQuery()) {
+        if (rs.next()) {
+          return new Appointment(
+              rs.getInt("appointment_id"),
+              rs.getTimestamp("appointment_date").toLocalDateTime(),
+              rs.getString("status"),
+              rs.getInt("patient_id"),
+              rs.getInt("dentist_id")
+          );
+        } else {
+          throw new SQLException("Appointment not found with ID: " + appointmentId);
+        }
+      }
+    }
+  }
+
   public void updateAppointment(Appointment appointment) throws SQLException {
     String sql = "{CALL Appointment_Update(?, ?, ?, ?, ?)}";
     try (Connection conn = dataSource.getConnection();
-        CallableStatement stmt = conn.prepareCall(sql)) {
+         CallableStatement stmt = conn.prepareCall(sql)) {
 
       stmt.setInt(1, appointment.getAppointmentId());
       stmt.setTimestamp(2, Timestamp.valueOf(appointment.getAppointmentDate()));
-      stmt.setString(3, appointment.getStatus().toDatabaseValue());
+
+      stmt.setString(3, appointment.getStatus().toString()); 
+
       stmt.setInt(4, appointment.getPatientId());
       stmt.setInt(5, appointment.getDentistId());
-      stmt.execute();
+
+      int rowsAffected = stmt.executeUpdate();
+      if (rowsAffected == 0) {
+        throw new SQLException("Updating appointment failed, no rows affected.");
+      }
     }
   }
 
   public void deleteAppointment(int appointmentId) throws SQLException {
     String sql = "{CALL Appointment_Delete(?)}";
     try (Connection conn = dataSource.getConnection();
-        CallableStatement stmt = conn.prepareCall(sql)) {
+         CallableStatement stmt = conn.prepareCall(sql)) {
 
       stmt.setInt(1, appointmentId);
-      stmt.execute();
+      int rowsAffected = stmt.executeUpdate();
+
+      if (rowsAffected == 0) {
+        throw new SQLException("Deleting appointment failed, no appointment found with ID: " + appointmentId);
+      }
     }
   }
 
   public BigDecimal calculateAppointmentTotal(int appointmentId) throws SQLException {
     String sql = "{CALL CalculateAppointmentTotal(?, ?)}";
     try (Connection conn = dataSource.getConnection();
-        CallableStatement stmt = conn.prepareCall(sql)) {
+         CallableStatement stmt = conn.prepareCall(sql)) {
 
       stmt.setInt(1, appointmentId);
       stmt.registerOutParameter(2, Types.DECIMAL);
@@ -94,5 +126,4 @@ public class AppointmentRepository {
       return stmt.getBigDecimal(2);
     }
   }
-
 }

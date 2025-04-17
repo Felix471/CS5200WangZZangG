@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { createPayment, getPaymentById, updatePayment } from '../api/paymentApi';
+import { createPayment, updatePayment, getPayments } from '../api/paymentApi';
 import { Payment } from '../models/Payment';
 
 function PaymentFormPage() {
     const navigate = useNavigate();
     const { id } = useParams();
     const [searchParams] = useSearchParams();
+
+    const paymentId = id ? parseInt(id, 10) : 0;
+    const isEditMode = paymentId > 0;
+
     const [paymentData, setPaymentData] = useState<Partial<Payment>>({
+        paymentId: 0,
         patientId: 1,
         appointmentId: 0,
         amount: 0,
@@ -16,19 +21,8 @@ function PaymentFormPage() {
     });
 
     useEffect(() => {
-        if (id) {
-            getPaymentById(Number(id))
-                .then((res) => {
-                    const formattedData = {
-                        ...res,
-                        paymentDate: res.paymentDate ? new Date(res.paymentDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
-                    };
-                    setPaymentData(formattedData);
-                    console.log('Loaded payment data:', formattedData);
-                })
-                .catch((err) => {
-                    console.error('Failed to load payment:', err);
-                });
+        if (isEditMode) {
+            loadPaymentToEdit(paymentId);
         } else {
             const apptIdParam = searchParams.get('appointment_id');
             if (apptIdParam) {
@@ -38,7 +32,26 @@ function PaymentFormPage() {
                 }));
             }
         }
-    }, [id, searchParams]);
+    }, [paymentId, isEditMode, searchParams]);
+
+    const loadPaymentToEdit = async (id: number) => {
+        try {
+            const allPayments = await getPayments();
+            const found = allPayments.find((p) => p.paymentId === id);
+            if (found) {
+                const formattedData = {
+                    ...found,
+                    paymentDate: found.paymentDate ? new Date(found.paymentDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                };
+                setPaymentData(formattedData);
+                console.log('Loaded payment data:', formattedData);
+            } else {
+                console.error(`Payment with ID ${id} not found`);
+            }
+        } catch (error) {
+            console.error('Failed to load payment:', error);
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -68,8 +81,8 @@ function PaymentFormPage() {
         console.log('Submitting payment data:', formattedData);
 
         try {
-            if (id) {
-                await updatePayment(Number(id), formattedData);
+            if (isEditMode) {
+                await updatePayment(paymentId, formattedData);
                 alert('Payment updated successfully!');
             } else {
                 await createPayment(formattedData);
@@ -78,9 +91,12 @@ function PaymentFormPage() {
             navigate('/payment', { state: { refresh: Date.now() } });
         } catch (err) {
             console.error('Payment creation/update failed:', err);
+            // @ts-ignore
             if (err.response && err.response.data) {
+                // @ts-ignore
                 alert(`Failed to save payment: ${err.response.data.message || JSON.stringify(err.response.data)}`);
             } else {
+                // @ts-ignore
                 alert(`Failed to save payment: ${err.message}`);
             }
         }
@@ -88,7 +104,7 @@ function PaymentFormPage() {
 
     return (
         <div>
-            <h2>{id ? 'Edit Payment' : 'Create Payment'}</h2>
+            <h2>{isEditMode ? 'Edit Payment' : 'Create Payment'}</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Appointment ID:</label>

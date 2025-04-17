@@ -2,27 +2,44 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
     createProcedure,
-    getProcedureById,
-    updateProcedure
+    updateProcedure,
+    getAllProcedures
 } from '../api/procedureCatalogApi';
 import { ProcedureCatalog } from '../models/ProcedureCatalog';
 
 function ProcedureCatalogFormPage() {
     const { id } = useParams();
     const navigate = useNavigate();
+
+    const procedureId = id ? parseInt(id, 10) : 0;
+    const isEditMode = procedureId > 0;
+
     const [procedureData, setProcedureData] = useState<Partial<ProcedureCatalog>>({
+        procedureId: 0,
         procedureName: '',
         description: '',
         standardCost: 0
     });
 
     useEffect(() => {
-        if (id) {
-            getProcedureById(Number(id))
-                .then(data => setProcedureData(data))
-                .catch(err => console.error('Failed to fetch procedure:', err));
+        if (isEditMode) {
+            loadProcedureToEdit(procedureId);
         }
-    }, [id]);
+    }, [procedureId, isEditMode]);
+
+    const loadProcedureToEdit = async (id: number) => {
+        try {
+            const allProcedures = await getAllProcedures();
+            const found = allProcedures.find((p) => p.procedureId === id);
+            if (found) {
+                setProcedureData(found);
+            } else {
+                console.error(`Procedure with ID ${id} not found`);
+            }
+        } catch (error) {
+            console.error('Failed to load procedure:', error);
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -35,8 +52,8 @@ function ProcedureCatalogFormPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            if (id) {
-                await updateProcedure(Number(id), procedureData);
+            if (isEditMode) {
+                await updateProcedure(procedureId, procedureData);
                 alert('Procedure updated!');
             } else {
                 await createProcedure(procedureData);
@@ -51,7 +68,7 @@ function ProcedureCatalogFormPage() {
 
     return (
         <div>
-            <h2>{id ? 'Edit Procedure' : 'Create Procedure'}</h2>
+            <h2>{isEditMode ? 'Edit Procedure' : 'Create Procedure'}</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Procedure Name:</label>

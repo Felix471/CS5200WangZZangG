@@ -31,17 +31,35 @@ public class AppointmentController {
     return ResponseEntity.ok(appointmentService.getAllAppointments());
   }
 
+  @GetMapping("/{id}")
+  public ResponseEntity<Appointment> getAppointmentById(@PathVariable int id) {
+    try {
+      Appointment appointment = appointmentService.getAppointmentById(id);
+      return ResponseEntity.ok(appointment);
+    } catch (Exception e) {
+      return ResponseEntity.notFound().build();
+    }
+  }
+
   @PutMapping("/{id}")
   public ResponseEntity<Void> updateAppointment(@PathVariable int id, @RequestBody Appointment appointment) {
     appointment.setAppointmentId(id);
-    appointmentService.updateAppointment(appointment);
-    return ResponseEntity.noContent().build();
+    try {
+      appointmentService.updateAppointment(appointment);
+      return ResponseEntity.noContent().build();
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().build();
+    }
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteAppointment(@PathVariable int id) {
-    appointmentService.deleteAppointment(id);
-    return ResponseEntity.noContent().build();
+    try {
+      appointmentService.deleteAppointment(id);
+      return ResponseEntity.noContent().build();
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   @GetMapping("/{id}/total")

@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createInsurance, getInsuranceById, updateInsurance } from '../api/insuranceApi';
+import { createInsurance, updateInsurance, getAllInsurances } from '../api/insuranceApi';
 import { Insurance } from '../models/Insurance';
 
 function InsuranceFormPage() {
     const { id } = useParams();
     const navigate = useNavigate();
+
+    const insuranceId = id ? parseInt(id, 10) : 0;
+    const isEditMode = insuranceId > 0;
+
     const [insuranceData, setInsuranceData] = useState<Partial<Insurance>>({
+        insuranceId: 0,
         providerName: '',
         policyNumber: '',
         validFrom: '',
@@ -15,23 +20,38 @@ function InsuranceFormPage() {
     });
 
     useEffect(() => {
-        if (id) {
-            getInsuranceById(Number(id))
-                .then(data => setInsuranceData(data))
-                .catch(err => console.error('Failed to fetch insurance:', err));
+        if (isEditMode) {
+            loadInsuranceToEdit(insuranceId);
         }
-    }, [id]);
+    }, [insuranceId, isEditMode]);
+
+    const loadInsuranceToEdit = async (id: number) => {
+        try {
+            const allInsurances = await getAllInsurances();
+            const found = allInsurances.find((ins) => ins.insuranceId === id);
+            if (found) {
+                setInsuranceData(found);
+            } else {
+                console.error(`Insurance with ID ${id} not found`);
+            }
+        } catch (error) {
+            console.error('Failed to load insurance:', error);
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setInsuranceData(prev => ({ ...prev, [name]: value }));
+        setInsuranceData(prev => ({
+            ...prev,
+            [name]: name === 'patientId' ? Number(value) : value
+        }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            if (id) {
-                await updateInsurance(Number(id), insuranceData);
+            if (isEditMode) {
+                await updateInsurance(insuranceId, insuranceData);
                 alert('Insurance updated successfully!');
             } else {
                 await createInsurance(insuranceData);
@@ -46,7 +66,7 @@ function InsuranceFormPage() {
 
     return (
         <div>
-            <h2>{id ? 'Edit Insurance' : 'Create Insurance'}</h2>
+            <h2>{isEditMode ? 'Edit Insurance' : 'Create Insurance'}</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Provider Name:</label>

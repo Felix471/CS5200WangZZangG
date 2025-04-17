@@ -1,46 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createDentist, updateDentist, getAllDentists } from '../api/dentistApi';
-import { Dentist } from '../models/Dentist';
+import { getAllClinics, createClinic, updateClinic } from "../api/clinicApi.tsx";
+import { Clinic } from '../models/Clinic';
 import { AxiosError } from 'axios';
 
-function DentistFormPage() {
+function ClinicFormPage() {
     const navigate = useNavigate();
 
     const { id } = useParams();
-    const dentistId = id ? parseInt(id, 10) : 0;
+    const clinicId = id ? parseInt(id, 10) : 0;
 
-    const [formData, setFormData] = useState<Dentist>({
-        dentistId: 0,
-        firstName: '',
-        lastName: '',
-        licenseNumber: '',
-        description: '',
-        phoneNumber: '',
-        email: '',
-        address: '',
+    const [formData, setFormData] = useState<Clinic>({
         clinicId: 0,
+        clinicName: '',
+        address: '',
+        clinicContactNumber: ''
     });
 
-    const isEditMode = dentistId > 0;
+    const isEditMode = clinicId > 0;
 
     useEffect(() => {
         if (isEditMode) {
-            loadDentistToEdit(dentistId);
+            loadClinicToEdit(clinicId);
         }
-    }, [dentistId, isEditMode]);
+    }, [clinicId, isEditMode]);
 
-    const loadDentistToEdit = async (id: number) => {
+    const loadClinicToEdit = async (id: number) => {
         try {
-            const allDentists = await getAllDentists();
-            const found = allDentists.find((d) => d.dentistId === id);
+            const allClinics = await getAllClinics();
+            const found = allClinics.find((c) => c.clinicId === id);
             if (found) {
                 setFormData(found);
             } else {
-                console.error(`Dentist with ID ${id} not found`);
+                console.error(`Clinic with ID ${id} not found`);
             }
         } catch (error) {
-            console.error('Failed to load dentist:', error);
+            console.error('Failed to load clinic:', error);
         }
     };
 
@@ -56,15 +51,15 @@ function DentistFormPage() {
         e.preventDefault();
         try {
             if (isEditMode) {
-                await updateDentist(dentistId, formData);
-                alert('Dentist updated successfully!');
+                await updateClinic(clinicId, formData);
+                alert('Clinic updated successfully!');
             } else {
-                await createDentist(formData);
-                alert('Dentist created successfully!');
+                await createClinic(formData);
+                alert('Clinic created successfully!');
             }
-            navigate('/dentists');
+            navigate('/clinics');
         } catch (error: unknown) {
-            console.error('Error saving dentist:', error);
+            console.error('Error saving clinic:', error);
 
             if (error instanceof AxiosError && error.response?.data?.message) {
                 alert(error.response.data.message);
@@ -77,68 +72,15 @@ function DentistFormPage() {
     return (
         <div>
             <h1 className="text-2xl mb-4">
-                {isEditMode ? 'Edit Dentist' : 'Create Dentist'}
+                {isEditMode ? 'Edit Clinic' : 'Create Clinic'}
             </h1>
             <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
                 <div>
-                    <label className="block mb-1">First Name</label>
+                    <label className="block mb-1">Clinic Name</label>
                     <input
                         type="text"
-                        name="firstName"
-                        value={formData.firstName || ''}
-                        onChange={handleChange}
-                        className="border p-1 w-full"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block mb-1">Last Name</label>
-                    <input
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName || ''}
-                        onChange={handleChange}
-                        className="border p-1 w-full"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block mb-1">License Number</label>
-                    <input
-                        type="text"
-                        name="licenseNumber"
-                        value={formData.licenseNumber || ''}
-                        onChange={handleChange}
-                        className="border p-1 w-full"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block mb-1">Description</label>
-                    <textarea
-                        name="description"
-                        value={formData.description || ''}
-                        onChange={handleChange}
-                        className="border p-1 w-full"
-                    />
-                </div>
-                <div>
-                    <label className="block mb-1">Phone Number</label>
-                    <input
-                        type="text"
-                        name="phoneNumber"
-                        value={formData.phoneNumber || ''}
-                        onChange={handleChange}
-                        className="border p-1 w-full"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block mb-1">Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email || ''}
+                        name="clinicName"
+                        value={formData.clinicName || ''}
                         onChange={handleChange}
                         className="border p-1 w-full"
                         required
@@ -151,16 +93,18 @@ function DentistFormPage() {
                         value={formData.address || ''}
                         onChange={handleChange}
                         className="border p-1 w-full"
+                        required
                     />
                 </div>
                 <div>
-                    <label className="block mb-1">Clinic ID</label>
+                    <label className="block mb-1">Contact Number</label>
                     <input
-                        type="number"
-                        name="clinicId"
-                        value={formData.clinicId || ''}
+                        type="text"
+                        name="clinicContactNumber"
+                        value={formData.clinicContactNumber || ''}
                         onChange={handleChange}
                         className="border p-1 w-full"
+                        required
                     />
                 </div>
 
@@ -175,4 +119,4 @@ function DentistFormPage() {
     );
 }
 
-export default DentistFormPage;
+export default ClinicFormPage;

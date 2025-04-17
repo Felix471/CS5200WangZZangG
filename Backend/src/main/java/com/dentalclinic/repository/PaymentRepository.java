@@ -3,6 +3,7 @@ package com.dentalclinic.repository;
 import com.dentalclinic.model.Payment;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
@@ -37,15 +38,18 @@ public class PaymentRepository {
   public List<Payment> getAllPayments() throws SQLException {
     String sql = "{CALL Payment_Read()}";
     try (Connection conn = dataSource.getConnection();
-        CallableStatement stmt = conn.prepareCall(sql);
-        ResultSet rs = stmt.executeQuery()) {
+         CallableStatement stmt = conn.prepareCall(sql);
+         ResultSet rs = stmt.executeQuery()) {
 
       List<Payment> payments = new ArrayList<>();
       while (rs.next()) {
+        java.sql.Date paymentDate = rs.getDate("payment_date");
+        LocalDate localPaymentDate = (paymentDate != null) ? paymentDate.toLocalDate() : null;
+
         payments.add(new Payment(
             rs.getInt("payment_id"),
             rs.getBigDecimal("amount"),
-            rs.getDate("payment_date").toLocalDate(),
+            localPaymentDate,
             rs.getString("method"),
             rs.getInt("patient_id"),
             rs.getInt("appointment_id")

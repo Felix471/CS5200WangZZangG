@@ -2,15 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
     createMedicalRecord,
-    getMedicalRecordById,
-    updateMedicalRecord
+    updateMedicalRecord,
+    getAllMedicalRecords
 } from '../api/medicalRecordApi';
 import { MedicalRecord } from '../models/MedicalRecord';
 
 function MedicalRecordFormPage() {
     const { id } = useParams();
     const navigate = useNavigate();
+
+    const recordId = id ? parseInt(id, 10) : 0;
+    const isEditMode = recordId > 0;
+
     const [recordData, setRecordData] = useState<Partial<MedicalRecord>>({
+        recordId: 0,
         recordDescription: '',
         recordDate: '',
         patientId: 0,
@@ -18,23 +23,40 @@ function MedicalRecordFormPage() {
     });
 
     useEffect(() => {
-        if (id) {
-            getMedicalRecordById(Number(id))
-                .then(data => setRecordData(data))
-                .catch(err => console.error('Failed to fetch record:', err));
+        if (isEditMode) {
+            loadMedicalRecordToEdit(recordId);
         }
-    }, [id]);
+    }, [recordId, isEditMode]);
+
+    const loadMedicalRecordToEdit = async (id: number) => {
+        try {
+            const allRecords = await getAllMedicalRecords();
+            const found = allRecords.find((r) => r.recordId === id);
+            if (found) {
+                setRecordData(found);
+            } else {
+                console.error(`Medical Record with ID ${id} not found`);
+            }
+        } catch (error) {
+            console.error('Failed to load medical record:', error);
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setRecordData(prev => ({ ...prev, [name]: value }));
+        setRecordData(prev => ({
+            ...prev,
+            [name]: name === 'patientId' || name === 'treatmentId'
+                ? Number(value)
+                : value
+        }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            if (id) {
-                await updateMedicalRecord(Number(id), recordData);
+            if (isEditMode) {
+                await updateMedicalRecord(recordId, recordData);
                 alert('Record updated!');
             } else {
                 await createMedicalRecord(recordData);
@@ -49,7 +71,7 @@ function MedicalRecordFormPage() {
 
     return (
         <div>
-            <h2>{id ? 'Edit Medical Record' : 'Create Medical Record'}</h2>
+            <h2>{isEditMode ? 'Edit Medical Record' : 'Create Medical Record'}</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Description:</label>

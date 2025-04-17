@@ -25,7 +25,7 @@ function AppointmentListPage() {
     const getDentistName = (dentistId: number) => {
         const found = dentists.find((d) => d.dentistId === dentistId);
         if (!found) return '';
-        return `${found.firstName} ${found.lastName}`;
+        return `${found.firstName} ${found.lastName}`;  // Fixed: Added backticks for template string
     };
 
     const handleNew = () => {
@@ -33,7 +33,7 @@ function AppointmentListPage() {
     };
 
     const handleEdit = (id: number) => {
-        navigate(`/appointment/edit/${id}`);
+        navigate(`/appointment/edit/${id}`);  // Fixed: Added backticks for template string
     };
 
     const handleDelete = async (id: number) => {

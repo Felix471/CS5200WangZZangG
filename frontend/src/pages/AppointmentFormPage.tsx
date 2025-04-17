@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
     createAppointment,
     updateAppointment,
-    getAppointmentById
+    getAppointments
 } from '../api/appointmentApi';
 import { getAllDentists } from '../api/dentistApi';
 import { Dentist } from '../models/Dentist';
@@ -12,12 +12,15 @@ import { Appointment } from '../models/Appointment';
 function AppointmentFormPage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const isEdit = Boolean(id);
+
+    const appointmentId = id ? parseInt(id, 10) : 0;
+    const isEditMode = appointmentId > 0;
 
     const [dentists, setDentists] = useState<Dentist[]>([]);
     const [formData, setFormData] = useState<Partial<Appointment>>({
+        appointmentId: 0,
         appointmentDate: '',
-        status: 'scheduled',
+        status: 'SCHEDULED',
         patientId: 1,
         dentistId: 0
     });
@@ -26,12 +29,25 @@ function AppointmentFormPage() {
         getAllDentists()
             .then(setDentists)
             .catch(console.error);
-        if (isEdit && id) {
-            getAppointmentById(Number(id))
-                .then(setFormData)
-                .catch(console.error);
+
+        if (isEditMode) {
+            loadAppointmentToEdit(appointmentId);
         }
-    }, [id, isEdit]);
+    }, [appointmentId, isEditMode]);
+
+    const loadAppointmentToEdit = async (id: number) => {
+        try {
+            const allAppointments = await getAppointments();
+            const found = allAppointments.find((a) => a.appointmentId === id);
+            if (found) {
+                setFormData(found);
+            } else {
+                console.error(`Appointment with ID ${id} not found`);
+            }
+        } catch (error) {
+            console.error('Failed to load appointment:', error);
+        }
+    };
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -53,26 +69,28 @@ function AppointmentFormPage() {
             return;
         }
         try {
-            if (isEdit && id) {
-                await updateAppointment(Number(id), formData);
+            if (isEditMode) {
+                await updateAppointment(appointmentId, formData);
+                alert('Appointment updated successfully!');
             } else {
                 await createAppointment({
                     appointmentDate: formData.appointmentDate!,
-                    status: formData.status || 'scheduled',
+                    status: formData.status || 'SCHEDULED',
                     patientId: formData.patientId || 1,
                     dentistId: formData.dentistId!
                 });
+                alert('Appointment created successfully!');
             }
             navigate('/appointment');
         } catch (error) {
-            console.error(error);
+            console.error('Error saving appointment:', error);
             alert('Save failed');
         }
     };
 
     return (
         <div>
-            <h2>{isEdit ? 'Edit Appointment' : 'Create Appointment'}</h2>
+            <h2>{isEditMode ? 'Edit Appointment' : 'Create Appointment'}</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Dentist</label>
