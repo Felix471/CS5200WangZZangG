@@ -1,9 +1,11 @@
-import { Outlet, Navigate, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 const AuthLayout = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(true);
     const navigate = useNavigate();
+    const location = useLocation();
+    const currentPath = location.pathname;
 
     useEffect(() => {
         const token = localStorage.getItem('authToken');
@@ -23,67 +25,76 @@ const AuthLayout = () => {
         navigate('/login');
     };
 
+    const topMenuItems = [
+        { path: '/appointment', label: 'Appointments', bgColor: '#4A90E2' },
+        { path: '/payment', label: 'Payments', bgColor: '#6ED141' },
+        { path: '/dentists', label: 'Dentists', bgColor: '#8E44AD' },
+        { path: '/patients', label: 'Patients', bgColor: '#F4CA16' },
+        { path: '/clinic', label: 'Clinics', bgColor: '#FFA500' },
+        { path: '/procedure-catalog', label: 'Procedures', bgColor: '#FF8CC6' },
+    ];
+
+    const bottomMenuItems = [
+        { path: '/treatment', label: 'Treatments', bgColor: '#58D68D' },
+        { path: '/treatment-procedure', label: 'Treatment Procedures', bgColor: '#5DAEF7' },
+        { path: '/dentist-procedure', label: 'Dentist Procedures', bgColor: '#EDBB99' },
+        { path: '/insurance', label: 'Insurances', bgColor: '#F1948A' },
+        { path: '/medical-record', label: 'Medical Records', bgColor: '#EC7063' },
+    ];
+
     return (
-        <div className="flex flex-col min-h-screen w-full">
-            <nav className="bg-blue-600 p-4 w-full">
+        <div className="flex flex-col min-h-screen bg-gray-100">
+            <header className="bg-gray-900 p-4">
+                <div className="container mx-auto flex justify-between items-center">
+                    <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+                    <button
+                        onClick={handleLogout}
+                        className="px-6 py-3 bg-red-600 text-white font-bold rounded-md hover:bg-red-700 transition-colors"
+                    >
+                        Logout
+                    </button>
+                </div>
+            </header>
+
+            <nav className="bg-gray-900 p-4">
                 <div className="container mx-auto">
-                    <div className="flex justify-between items-center mb-4">
-                        <div className="text-white font-bold text-xl">Admin Dashboard</div>
-                        <button
-                            onClick={handleLogout}
-                            className="text-white hover:text-black hover:underline px-3 py-1 rounded"
-                            style={{ border: 'none', backgroundColor: 'rgba(0,0,0,0.2)' }}
-                        >
-                            Logout
-                        </button>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {topMenuItems.map((item) => (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                className={`flex items-center px-6 py-3 rounded-md font-bold text-white ${currentPath === item.path ? 'ring-2 ring-white' : ''}`}
+                                style={{ backgroundColor: item.bgColor }}
+                            >
+                                <div className="w-3 h-3 bg-white rounded-full mr-2 opacity-80"></div>
+                                {item.label}
+                            </Link>
+                        ))}
                     </div>
 
-                    <div className="mb-3">
-                        <Link to="/appointment" className="text-blue-200 inline-block px-3 py-1 mr-4 mb-2 hover:text-black hover:underline rounded">
-                            Appointments
-                        </Link>
-                        <Link to="/payment" className="text-blue-200 inline-block px-3 py-1 mr-4 mb-2 hover:text-black hover:underline rounded">
-                            Payments
-                        </Link>
-                        <Link to="/dentists" className="text-blue-200 inline-block px-3 py-1 mr-4 mb-2 hover:text-black hover:underline rounded">
-                            Dentists
-                        </Link>
-                        <Link to="/patients" className="text-blue-200 inline-block px-3 py-1 mr-4 mb-2 hover:text-black hover:underline rounded">
-                            Patients
-                        </Link>
-                        <Link to="/clinic" className="text-blue-200 inline-block px-3 py-1 mr-4 mb-2 hover:text-black hover:underline rounded">
-                            Clinics
-                        </Link>
-                        <Link to="/procedure-catalog" className="text-blue-200 inline-block px-3 py-1 mr-4 mb-2 hover:text-black hover:underline rounded">
-                            Procedures
-                        </Link>
-                    </div>
-
-                    <div>
-                        <Link to="/treatment" className="text-blue-200 inline-block px-3 py-1 mr-4 mb-2 hover:text-black hover:underline rounded">
-                            Treatments
-                        </Link>
-                        <Link to="/treatment-procedure" className="text-blue-200 inline-block px-3 py-1 mr-4 mb-2 hover:text-black hover:underline rounded">
-                            Treatment Procedures
-                        </Link>
-                        <Link to="/dentist-procedure" className="text-blue-200 inline-block px-3 py-1 mr-4 mb-2 hover:text-black hover:underline rounded">
-                            Dentist Procedures
-                        </Link>
-                        <Link to="/insurance" className="text-blue-200 inline-block px-3 py-1 mr-4 mb-2 hover:text-black hover:underline rounded">
-                            Insurances
-                        </Link>
-                        <Link to="/medical-record" className="text-blue-200 inline-block px-3 py-1 mr-4 mb-2 hover:text-black hover:underline rounded">
-                            Medical Records
-                        </Link>
+                    <div className="flex flex-wrap gap-2">
+                        {bottomMenuItems.map((item) => (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                className={`flex items-center px-6 py-3 rounded-md font-bold text-white ${currentPath === item.path ? 'ring-2 ring-white' : ''}`}
+                                style={{ backgroundColor: item.bgColor }}
+                            >
+                                <div className="w-3 h-3 bg-white rounded-full mr-2 opacity-80"></div>
+                                {item.label}
+                            </Link>
+                        ))}
                     </div>
                 </div>
             </nav>
 
-            <main className="container mx-auto p-4 flex-grow">
-                <Outlet />
+            <main className="flex-grow bg-gray-100 p-6">
+                <div className="container mx-auto">
+                    <Outlet />
+                </div>
             </main>
 
-            <footer className="bg-blue-600 p-3 text-white text-center w-full">
+            <footer className="bg-gray-900 p-4 text-center text-white">
                 © 2025 Dental Clinic Admin
             </footer>
         </div>

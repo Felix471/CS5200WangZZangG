@@ -59,4 +59,5 @@ public class ClinicService {
     }
     throw new DatabaseException("Failed to delete clinic: " + e.getMessage());
   }
+
 }

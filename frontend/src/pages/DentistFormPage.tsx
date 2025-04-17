@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { createDentist, updateDentist, getAllDentists } from '../api/dentistApi';
 import { Dentist } from '../models/Dentist';
 import { AxiosError } from "axios";
 
 function DentistFormPage() {
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const dentistId = searchParams.get('id');
+    const { id } = useParams();
+
+    const dentistId = id ? parseInt(id, 10) : 0;
+
+    const isEditMode = dentistId > 0;
 
     const [formData, setFormData] = useState<Dentist>({
         dentistId: 0,
@@ -21,11 +24,9 @@ function DentistFormPage() {
         clinicId: 0,
     });
 
-    const isEditMode = Boolean(dentistId);
-
     useEffect(() => {
-        if (isEditMode && dentistId) {
-            loadDentistToEdit(parseInt(dentistId));
+        if (isEditMode) {
+            loadDentistToEdit(dentistId);
         }
     }, [dentistId, isEditMode]);
 
@@ -45,7 +46,7 @@ function DentistFormPage() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
+        setFormData(prev => ({
             ...prev,
             [name]: value,
         }));
@@ -54,17 +55,16 @@ function DentistFormPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            if (isEditMode && dentistId) {
-                await updateDentist(parseInt(dentistId), formData);
+            if (isEditMode) {
+                await updateDentist(dentistId, formData);
                 alert('Dentist updated successfully!');
             } else {
                 await createDentist(formData);
                 alert('Dentist created successfully!');
             }
             navigate('/dentists');
-        } catch (error: unknown) {
+        } catch (error) {
             console.error('Error saving dentist:', error);
-
             if (error instanceof AxiosError && error.response?.data?.message) {
                 alert(error.response.data.message);
             } else {

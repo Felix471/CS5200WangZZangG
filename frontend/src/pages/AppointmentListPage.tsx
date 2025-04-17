@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAppointments } from '../api/appointmentApi';
+import {
+    getAppointments,
+    cancelAppointment
+} from '../api/appointmentApi';
 import { getAllDentists } from '../api/dentistApi';
 import { Appointment } from '../models/Appointment';
 import { Dentist } from '../models/Dentist';
@@ -12,34 +15,41 @@ function AppointmentListPage() {
 
     useEffect(() => {
         getAppointments()
-            .then((data) => {
-                setAppointments(data);
-            })
-            .catch((err) => {
-                console.error('Error fetching appointments', err);
-            });
-
+            .then((res) => setAppointments(res))
+            .catch((err) => console.error(err));
         getAllDentists()
-            .then((data) => setDentists(data))
-            .catch((err) => console.error('Error fetching dentists', err));
+            .then((res) => setDentists(res))
+            .catch((err) => console.error(err));
     }, []);
 
-    const getDentistName = (dentistId?: number) => {
-        const dentist = dentists.find((d) => d.dentistId === dentistId);
-        if (!dentist) return '';
-        return `${dentist.firstName ?? ''} ${dentist.lastName ?? ''}`.trim();
+    const getDentistName = (dentistId: number) => {
+        const found = dentists.find((d) => d.dentistId === dentistId);
+        if (!found) return '';
+        return `${found.firstName} ${found.lastName}`;
     };
 
-    const handleNewAppointment = () => {
+    const handleNew = () => {
         navigate('/appointment/new');
+    };
+
+    const handleEdit = (id: number) => {
+        navigate(`/appointment/edit/${id}`);
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!window.confirm('Delete this appointment?')) return;
+        try {
+            await cancelAppointment(id);
+            setAppointments((prev) => prev.filter((a) => a.appointmentId !== id));
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
         <div>
             <h2>Appointments</h2>
-            <button onClick={handleNewAppointment}>Create New Appointment</button>
-            <hr />
-
+            <button onClick={handleNew}>Create New Appointment</button>
             {appointments.length === 0 ? (
                 <p>No appointments found.</p>
             ) : (
@@ -50,6 +60,7 @@ function AppointmentListPage() {
                         <th>Dentist</th>
                         <th>Appointment Date</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -59,6 +70,17 @@ function AppointmentListPage() {
                             <td>{getDentistName(appt.dentistId)}</td>
                             <td>{appt.appointmentDate}</td>
                             <td>{appt.status}</td>
+                            <td>
+                                <button onClick={() => handleEdit(appt.appointmentId)}>
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(appt.appointmentId)}
+                                    style={{ marginLeft: '8px', backgroundColor: '#ff4d4f' }}
+                                >
+                                    Delete
+                                </button>
+                            </td>
                         </tr>
                     ))}
                     </tbody>

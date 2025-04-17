@@ -87,7 +87,7 @@ function InsuranceFormPage() {
                     />
                 </div>
                 <div>
-                    <label>Patient ID (optional):</label>
+                    <label>Patient ID:</label>
                     <input
                         type="number"
                         name="patientId"

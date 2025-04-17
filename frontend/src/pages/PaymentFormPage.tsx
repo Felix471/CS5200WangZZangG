@@ -7,7 +7,6 @@ function PaymentFormPage() {
     const navigate = useNavigate();
     const { id } = useParams();
     const [searchParams] = useSearchParams();
-
     const [paymentData, setPaymentData] = useState<Partial<Payment>>({
         patientId: 1,
         appointmentId: 0,
@@ -20,7 +19,12 @@ function PaymentFormPage() {
         if (id) {
             getPaymentById(Number(id))
                 .then((res) => {
-                    setPaymentData(res);
+                    const formattedData = {
+                        ...res,
+                        paymentDate: res.paymentDate ? new Date(res.paymentDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                    };
+                    setPaymentData(formattedData);
+                    console.log('Loaded payment data:', formattedData);
                 })
                 .catch((err) => {
                     console.error('Failed to load payment:', err);
@@ -48,24 +52,37 @@ function PaymentFormPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         if (!paymentData.appointmentId || !paymentData.amount) {
             alert('Appointment ID and amount are required.');
             return;
         }
 
+        const formattedData = {
+            amount: paymentData.amount,
+            paymentDate: paymentData.paymentDate,
+            method: paymentData.method,
+            patientId: paymentData.patientId,
+            appointmentId: paymentData.appointmentId
+        };
+
+        console.log('Submitting payment data:', formattedData);
+
         try {
             if (id) {
-                await updatePayment(Number(id), paymentData);
+                await updatePayment(Number(id), formattedData);
                 alert('Payment updated successfully!');
             } else {
-                await createPayment(paymentData);
+                await createPayment(formattedData);
                 alert('Payment created successfully!');
             }
-            navigate('/payment');
+            navigate('/payment', { state: { refresh: Date.now() } });
         } catch (err) {
             console.error('Payment creation/update failed:', err);
-            alert('Failed to save payment.');
+            if (err.response && err.response.data) {
+                alert(`Failed to save payment: ${err.response.data.message || JSON.stringify(err.response.data)}`);
+            } else {
+                alert(`Failed to save payment: ${err.message}`);
+            }
         }
     };
 
@@ -82,7 +99,6 @@ function PaymentFormPage() {
                         onChange={handleChange}
                     />
                 </div>
-
                 <div>
                     <label>Patient ID:</label>
                     <input
@@ -92,7 +108,6 @@ function PaymentFormPage() {
                         onChange={handleChange}
                     />
                 </div>
-
                 <div>
                     <label>Amount:</label>
                     <input
@@ -102,7 +117,6 @@ function PaymentFormPage() {
                         onChange={handleChange}
                     />
                 </div>
-
                 <div>
                     <label>Payment Date:</label>
                     <input
@@ -112,7 +126,6 @@ function PaymentFormPage() {
                         onChange={handleChange}
                     />
                 </div>
-
                 <div>
                     <label>Payment Method:</label>
                     <select
@@ -125,7 +138,6 @@ function PaymentFormPage() {
                         <option value="insurance">Insurance</option>
                     </select>
                 </div>
-
                 <button type="submit">Save</button>
                 <button type="button" onClick={() => navigate('/payment')}>Cancel</button>
             </form>

@@ -42,7 +42,7 @@ function ProcedureCatalogFormPage() {
                 await createProcedure(procedureData);
                 alert('Procedure created!');
             }
-            navigate('/procedure');
+            navigate('/procedure-catalog');
         } catch (err) {
             console.error('Failed to save procedure:', err);
             alert('Failed to save procedure');
@@ -82,7 +82,7 @@ function ProcedureCatalogFormPage() {
                     />
                 </div>
                 <button type="submit">Save</button>
-                <button onClick={() => navigate('/procedure')} type="button">
+                <button onClick={() => navigate('/procedure-catalog')} type="button">
                     Cancel
                 </button>
             </form>

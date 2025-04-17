@@ -6,11 +6,6 @@ export async function getAllClinics(): Promise<Clinic[]> {
     return response.data;
 }
 
-export async function getClinicById(id: number): Promise<Clinic> {
-    const response = await axiosInstance.get<Clinic>(`/api/clinics/${id}`);
-    return response.data;
-}
-
 export async function createClinic(data: Partial<Clinic>): Promise<void> {
     await axiosInstance.post('/api/clinics', data);
 }

@@ -7,23 +7,23 @@ import {
 } from '../api/dentistProcedureApi';
 import { DentistProcedure } from '../models/DentistProcedure';
 
-//keys from dentist procedure is not editable.
-
 function DentistProcedureListPage() {
     const [dpList, setDpList] = useState<DentistProcedure[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        loadDentistProcedures();
-    }, []);
-
-    const loadDentistProcedures = () => {
         getAllDentistProcedures()
             .then(setDpList)
-            .catch((err: Error) => console.error('Failed to fetch associations:', err));
-    };
+            .catch(err => console.error('Failed to fetch associations:', err));
+    }, []);
 
     const handleNew = () => navigate('/dentist-procedure/new');
+
+    const handleEdit = (dp: DentistProcedure) => {
+        navigate(`/dentist-procedure/edit`, {
+            state: { dp }
+        });
+    };
 
     const handleDelete = async (procedureId: number, dentistId: number) => {
         if (!window.confirm('Delete this association?')) return;
@@ -32,7 +32,7 @@ function DentistProcedureListPage() {
             setDpList(prev =>
                 prev.filter(dp => !(dp.procedureId === procedureId && dp.dentistId === dentistId))
             );
-        } catch (err: unknown) {
+        } catch (err) {
             console.error('Failed to delete association:', err);
         }
     };
@@ -58,6 +58,7 @@ function DentistProcedureListPage() {
                             <td>{dp.procedureId}</td>
                             <td>{dp.dentistId}</td>
                             <td>
+                                <button onClick={() => handleEdit(dp)}>Edit</button>
                                 <button
                                     onClick={() => handleDelete(dp.procedureId, dp.dentistId)}
                                     style={{ backgroundColor: '#ff4d4f' }}

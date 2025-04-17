@@ -37,3 +37,4 @@ public class ClinicController {
     return ResponseEntity.noContent().build();
   }
 }
+

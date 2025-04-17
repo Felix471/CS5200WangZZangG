@@ -18,6 +18,12 @@ function ClinicListPage() {
         navigate('/clinic/new');
     };
 
+    const handleEdit = (clinic: Clinic) => {
+        navigate(`/clinic/edit/${clinic.clinicId}`, {
+            state: { clinic }
+        });
+    };
+
     return (
         <div>
             <h2>Clinic List</h2>
@@ -32,7 +38,7 @@ function ClinicListPage() {
                         <th>Clinic Name</th>
                         <th>Address</th>
                         <th>Contact Number</th>
-                        {/* <th>Actions</th> */}
+                        <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -42,6 +48,9 @@ function ClinicListPage() {
                             <td>{clinic.clinicName}</td>
                             <td>{clinic.address}</td>
                             <td>{clinic.clinicContactNumber}</td>
+                            <td>
+                                <button onClick={() => handleEdit(clinic)}>Edit</button>
+                            </td>
                         </tr>
                     ))}
                     </tbody>
