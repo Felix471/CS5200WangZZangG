@@ -1,32 +1,33 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAppointments } from '../api/appointmentApi';
+import { getAllDentists } from '../api/dentistApi';
 import { Appointment } from '../models/Appointment';
-import { Doctor} from "../models/Doctor.tsx";
-import {getDoctors} from "../api/doctorApi.tsx";
+import { Dentist } from '../models/Dentist';
 
-function AppointmentPage() {
+function AppointmentListPage() {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
-    const [doctors, setDoctors] = useState<Doctor[]>([]);
+    const [dentists, setDentists] = useState<Dentist[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        getAppointments(/* patient_id */)
-            .then(data => {
+        getAppointments()
+            .then((data) => {
                 setAppointments(data);
             })
-            .catch(err => {
+            .catch((err) => {
                 console.error('Error fetching appointments', err);
             });
 
-        getDoctors()
-            .then(data => setDoctors(data))
-            .catch(err => console.error(err));
+        getAllDentists()
+            .then((data) => setDentists(data))
+            .catch((err) => console.error('Error fetching dentists', err));
     }, []);
 
-    const getDoctorName = (doctorId: number) => {
-        const doc = doctors.find((d) => d.id === doctorId);
-        return doc ? doc.name : '';
+    const getDentistName = (dentistId?: number) => {
+        const dentist = dentists.find((d) => d.dentistId === dentistId);
+        if (!dentist) return '';
+        return `${dentist.firstName ?? ''} ${dentist.lastName ?? ''}`.trim();
     };
 
     const handleNewAppointment = () => {
@@ -35,7 +36,7 @@ function AppointmentPage() {
 
     return (
         <div>
-            <h2>My Appointments</h2>
+            <h2>Appointments</h2>
             <button onClick={handleNewAppointment}>Create New Appointment</button>
             <hr />
 
@@ -46,19 +47,17 @@ function AppointmentPage() {
                     <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Doctor</th>
-                        <th>Date</th>
-                        <th>Time</th>
+                        <th>Dentist</th>
+                        <th>Appointment Date</th>
                         <th>Status</th>
                     </tr>
                     </thead>
                     <tbody>
                     {appointments.map((appt) => (
-                        <tr key={appt.id}>
-                            <td>{appt.id}</td>
-                            <td>{appt.doctor_name || getDoctorName(appt.doctor_id)}</td>
-                            <td>{appt.date}</td>
-                            <td>{appt.time}</td>
+                        <tr key={appt.appointmentId}>
+                            <td>{appt.appointmentId}</td>
+                            <td>{getDentistName(appt.dentistId)}</td>
+                            <td>{appt.appointmentDate}</td>
                             <td>{appt.status}</td>
                         </tr>
                     ))}
@@ -69,4 +68,4 @@ function AppointmentPage() {
     );
 }
 
-export default AppointmentPage;
+export default AppointmentListPage;

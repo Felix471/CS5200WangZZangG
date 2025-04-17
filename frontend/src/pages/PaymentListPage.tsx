@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {deletePayment, getPayments} from '../api/paymentApi';
+import { deletePayment, getPayments } from '../api/paymentApi';
 import { Payment } from '../models/Payment';
 
-function PaymentPage() {
+function PaymentListPage() {
     const [payments, setPayments] = useState<Payment[]>([]);
     const navigate = useNavigate();
 
@@ -24,7 +24,7 @@ function PaymentPage() {
 
         try {
             await deletePayment(paymentId);
-            setPayments(payments.filter(p => p.id !== paymentId));
+            setPayments(payments.filter(p => p.paymentId !== paymentId));
         } catch (err) {
             console.error('Failed to delete payment:', err);
         }
@@ -43,25 +43,25 @@ function PaymentPage() {
                         <th>ID</th>
                         <th>Appointment</th>
                         <th>Amount</th>
-                        <th>Status</th>
+                        <th>Date</th>
                         <th>Method</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     {payments.map(p => (
-                        <tr key={p.id}>
-                            <td>{p.id}</td>
-                            <td>{p.appointment_id}</td>
+                        <tr key={p.paymentId}>
+                            <td>{p.paymentId}</td>
+                            <td>{p.appointmentId}</td>
                             <td>{p.amount}</td>
-                            <td>{p.status}</td>
-                            <td>{p.payment_method}</td>
+                            <td>{p.paymentDate}</td>
+                            <td>{p.method}</td>
                             <td>
-                                <button onClick={() => navigate(`/payment/edit/${p.id}`)}>
+                                <button onClick={() => navigate(`/payment/edit/${p.paymentId}`)}>
                                     Edit
                                 </button>
-                                <button onClick={() => handleDelete(p.id)}
-                                    style={{ marginLeft: '8px', backgroundColor: '#ff4d4f' }}>
+                                <button onClick={() => handleDelete(p.paymentId)}
+                                        style={{ marginLeft: '8px', backgroundColor: '#ff4d4f' }}>
                                     Delete
                                 </button>
                             </td>
@@ -74,4 +74,4 @@ function PaymentPage() {
     );
 }
 
-export default PaymentPage;
+export default PaymentListPage;

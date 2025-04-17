@@ -9,15 +9,14 @@ function PaymentFormPage() {
     const [searchParams] = useSearchParams();
 
     const [paymentData, setPaymentData] = useState<Partial<Payment>>({
-        patient_id: 1,
-        appointment_id: 0,
+        patientId: 1,
+        appointmentId: 0,
         amount: 0,
-        status: 'pending',
-        payment_method: 'credit_card',
+        method: 'credit_card',
+        paymentDate: new Date().toISOString().split('T')[0]
     });
 
     useEffect(() => {
-
         if (id) {
             getPaymentById(Number(id))
                 .then((res) => {
@@ -27,12 +26,11 @@ function PaymentFormPage() {
                     console.error('Failed to load payment:', err);
                 });
         } else {
-
             const apptIdParam = searchParams.get('appointment_id');
             if (apptIdParam) {
                 setPaymentData((prev) => ({
                     ...prev,
-                    appointment_id: Number(apptIdParam),
+                    appointmentId: Number(apptIdParam),
                 }));
             }
         }
@@ -42,26 +40,25 @@ function PaymentFormPage() {
         const { name, value } = e.target;
         setPaymentData((prev) => ({
             ...prev,
-            [name]: name === 'amount' ? Number(value) : value,
+            [name]: (name === 'amount' || name === 'appointmentId' || name === 'patientId')
+                ? Number(value)
+                : value,
         }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-
-        if (!paymentData.appointment_id || !paymentData.amount) {
+        if (!paymentData.appointmentId || !paymentData.amount) {
             alert('Appointment ID and amount are required.');
             return;
         }
 
         try {
             if (id) {
-
                 await updatePayment(Number(id), paymentData);
                 alert('Payment updated successfully!');
             } else {
-
                 await createPayment(paymentData);
                 alert('Payment created successfully!');
             }
@@ -80,8 +77,18 @@ function PaymentFormPage() {
                     <label>Appointment ID:</label>
                     <input
                         type="number"
-                        name="appointment_id"
-                        value={paymentData.appointment_id || 0}
+                        name="appointmentId"
+                        value={paymentData.appointmentId || 0}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div>
+                    <label>Patient ID:</label>
+                    <input
+                        type="number"
+                        name="patientId"
+                        value={paymentData.patientId || 1}
                         onChange={handleChange}
                     />
                 </div>
@@ -97,27 +104,25 @@ function PaymentFormPage() {
                 </div>
 
                 <div>
+                    <label>Payment Date:</label>
+                    <input
+                        type="date"
+                        name="paymentDate"
+                        value={paymentData.paymentDate}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div>
                     <label>Payment Method:</label>
                     <select
-                        name="payment_method"
-                        value={paymentData.payment_method}
+                        name="method"
+                        value={paymentData.method}
                         onChange={handleChange}
                     >
                         <option value="credit_card">Credit Card</option>
                         <option value="cash">Cash</option>
                         <option value="insurance">Insurance</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label>Status:</label>
-                    <select
-                        name="status"
-                        value={paymentData.status}
-                        onChange={handleChange}
-                    >
-                        <option value="pending">Pending</option>
-                        <option value="completed">Completed</option>
                     </select>
                 </div>
 

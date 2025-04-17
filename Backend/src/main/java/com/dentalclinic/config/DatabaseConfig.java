@@ -14,7 +14,7 @@ public class DatabaseConfig {
     HikariConfig config = new HikariConfig();
     config.setJdbcUrl("jdbc:mysql://localhost:3306/dentist_clinic");
     config.setUsername("root");
-    config.setPassword("gary20020206");
+    config.setPassword("wzytohoku17");
     config.setDriverClassName("com.mysql.cj.jdbc.Driver");
     return new HikariDataSource(config);
   }

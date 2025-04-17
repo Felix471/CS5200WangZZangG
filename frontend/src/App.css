@@ -1,8 +1,10 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+  height: 100vh;
 }
 
 .logo {
@@ -39,4 +41,42 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Button styling improvements */
+button {
+  margin-right: 0.5rem;
+}
+
+.hover\:text-black:hover {
+  color: #000000 !important;
+}
+
+.hover\:underline:hover {
+  text-decoration: underline !important;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.25rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+}
+
+h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
 }

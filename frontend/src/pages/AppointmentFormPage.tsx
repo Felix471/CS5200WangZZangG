@@ -1,69 +1,45 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createAppointment, getAvailableSlots } from '../api/appointmentApi';
-import { getDoctors } from '../api/doctorApi';
-import {getAllTreatments} from '../api/treatmentApi';
-import {Treatment} from "../models/Appointment.tsx";
-import {Doctor} from "../models/Doctor.tsx";
-
+import { createAppointment } from '../api/appointmentApi';
+import { getAllDentists } from '../api/dentistApi';
+import { Dentist } from '../models/Dentist';
 
 function AppointmentFormPage() {
     const navigate = useNavigate();
+    const [dentists, setDentists] = useState<Dentist[]>([]);
 
-    const [doctorList, setDoctorList] = useState<Doctor[]>([]);
-    const [treatmentList, setTreatmentList] = useState<Treatment[]>([]);
-    const [selectedDoctor, setSelectedDoctor] = useState<number>(0);
-    const [selectedDate, setSelectedDate] = useState<string>('');
-    const [availableSlots, setAvailableSlots] = useState<string[]>([]);
-    const [selectedTime, setSelectedTime] = useState<string>('');
-    const [selectedTreatment, setSelectedTreatment] = useState<number>(0);
-    const [notes, setNotes] = useState<string>('');
+    const [dentistId, setDentistId] = useState<number | ''>('');
+    const [appointmentDate, setAppointmentDate] = useState<string>('');
 
-    //Here we suppose the current patient id is 1, the real app will fetch from token or context
-    const patientId = 1;
+    const [patientId] = useState<number>(1);
+    const [status] = useState<string>('scheduled');
 
     useEffect(() => {
-
-            getDoctors()
-                .then((res) => setDoctorList(res as Doctor[]))
-                .catch((err) => console.error(err));
-
-            getAllTreatments()
-                .then((res) => setTreatmentList(res as Treatment[]))
-                .catch((err) => console.error(err));
-        },
-        []);
-
-    useEffect(() => {
-        if (selectedDoctor && selectedDate) {
-            getAvailableSlots(selectedDoctor, selectedDate)
-                .then((slots) => {
-                    setAvailableSlots(slots || []);
-                    setSelectedTime('');
-                })
-                .catch((err) => console.error(err));
-        }
-    }, [selectedDoctor, selectedDate]);
+        getAllDentists()
+            .then((data) => setDentists(data))
+            .catch((err) => console.error('Failed to load dentists', err));
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (!selectedDoctor || !selectedDate || !selectedTime || !selectedTreatment) {
-            alert('Please fill out all required fields');
+        if (!dentistId || !appointmentDate) {
+            alert('Please select a dentist and choose a date/time.');
             return;
         }
 
-        try {
-            const newAppointment = {
-                patient_id: patientId,
-                doctor_id: selectedDoctor,
-                treatment_id: selectedTreatment,
-                date: selectedDate,
-                time: selectedTime,
-                status: 'pending',
-                notes
-            };
+        const [date, time] = appointmentDate.split('T');
 
+        const newAppointment = {
+            date,
+            time,
+            doctor_id: Number(dentistId),
+            patient_id: patientId,
+            status,
+            notes: '',
+            treatment_id: 0
+        };
+
+        try {
             await createAppointment(newAppointment);
             alert('Appointment created successfully!');
             navigate('/appointment');
@@ -77,63 +53,28 @@ function AppointmentFormPage() {
         <div>
             <h2>Create Appointment</h2>
             <form onSubmit={handleSubmit}>
+
                 <div>
-                    <label>Doctor:</label>
+                    <label>Dentist:</label>
                     <select
-                        value={selectedDoctor}
-                        onChange={(e) => setSelectedDoctor(Number(e.target.value))}
+                        value={dentistId}
+                        onChange={(e) => setDentistId(e.target.value ? Number(e.target.value) : '')}
                     >
-                        <option value="">Select a doctor</option>
-                        {doctorList.map((doc) => (
-                            <option key={doc.id} value={doc.id}>
-                                {doc.name} - {doc.department}
+                        <option value="">-- Select Dentist --</option>
+                        {dentists.map((d) => (
+                            <option key={d.dentistId} value={d.dentistId}>
+                                {d.firstName} {d.lastName}
                             </option>
                         ))}
                     </select>
                 </div>
 
                 <div>
-                    <label>Date:</label>
+                    <label>Date & Time:</label>
                     <input
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                    />
-                </div>
-
-                <div>
-                    <label>Available Slots:</label>
-                    <select
-                        value={selectedTime}
-                        onChange={(e) => setSelectedTime(e.target.value)}
-                    >
-                        <option value="">Select a time</option>
-                        {availableSlots.map((slot, idx) => (
-                            <option key={idx} value={slot}>{slot}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div>
-                    <label>Treatment:</label>
-                    <select
-                        value={selectedTreatment}
-                        onChange={(e) => setSelectedTreatment(Number(e.target.value))}
-                    >
-                        <option value="">Select a treatment</option>
-                        {treatmentList.map((treat) => (
-                            <option key={treat.id} value={treat.id}>
-                                {treat.name} - {treat.department}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div>
-                    <label>Notes (optional):</label>
-                    <textarea
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
+                        type="datetime-local"
+                        value={appointmentDate}
+                        onChange={(e) => setAppointmentDate(e.target.value)}
                     />
                 </div>
 
